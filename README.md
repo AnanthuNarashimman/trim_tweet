@@ -3,7 +3,6 @@
 ![Status](https://img.shields.io/badge/status-under%20development-yellow?style=for-the-badge)
 ![Version](https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-18.x-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-X%20%7C%20Twitter-1DA1F2?style=for-the-badge&logo=x&logoColor=white)
 
 AI-powered post trimming tool designed to help you stay within X (Twitter) character limits while maintaining your message's impact.
