@@ -4,13 +4,20 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["x", "twitter", "post-optimizer", "openai"],
+  "keywords": [
+    "x",
+    "twitter",
+    "post-optimizer",
+    "gemini"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Serverless API for optimizing posts for X (Twitter) free tier",
   "dependencies": {
-    "openai": "^4.24.0"
+    "@google/generative-ai": "^0.21.0",
+    "dotenv": "^17.2.3"
   }
 }

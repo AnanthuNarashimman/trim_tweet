@@ -1,9 +1,7 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // CORS headers for browser requests
 const corsHeaders = {
@@ -41,53 +39,60 @@ export default async function handler(req, res) {
       });
     }
 
-    // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
+    // Check if Gemini API key is configured
+    if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({ 
-        error: 'OpenAI API key not configured.' 
+        error: 'Gemini API key not configured.' 
       });
     }
 
-    // Call OpenAI to optimize the post for X's free tier (280 characters)
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'system',
-          content: `You are an expert social media content optimizer specializing in X (formerly Twitter). Your task is to:
-1. Optimize posts to fit within X's free tier limit of 280 characters
+    // Call Gemini to optimize the post for X's free tier (280 characters)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    
+    const prompt = `You are an expert social media content optimizer specializing in X (formerly Twitter). Your task is to:
+1. Optimize posts to fit STRICTLY within X's free tier limit of 280 characters - NO EXCEPTIONS
 2. Maintain the core message and tone
 3. Make it engaging and impactful
 4. Suggest 3-5 relevant hashtags that would increase reach
 
 Return your response in the following JSON format:
 {
-  "optimizedPost": "The shortened post text (max 280 characters)",
+  "optimizedPost": "The shortened post text (MUST be under 280 characters)",
   "characterCount": number,
   "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
   "hashtagsString": "#hashtag1 #hashtag2 #hashtag3"
 }
 
-IMPORTANT: The optimizedPost should NOT include hashtags. Keep hashtags separate. Ensure the optimizedPost is under 280 characters.`
-        },
-        {
-          role: 'user',
-          content: `Optimize this post for X (Twitter) free tier:\n\n${text}`
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
-      response_format: { type: 'json_object' }
-    });
+CRITICAL RULES:
+- The optimizedPost MUST be under 280 characters - this is non-negotiable
+- Do NOT include hashtags in optimizedPost - keep them separate
+- Count characters carefully and ensure you stay well under 280
+- If the post is close to the limit, make it shorter to be safe
 
-    const responseText = completion.choices[0].message.content;
-    const result = JSON.parse(responseText);
+Optimize this post for X (Twitter) free tier:
+
+${text}`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const responseText = response.text();
+    
+    // Extract JSON from markdown code blocks if present
+    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)```/) || responseText.match(/```\s*([\s\S]*?)```/);
+    const jsonText = jsonMatch ? jsonMatch[1] : responseText;
+    const data = JSON.parse(jsonText.trim());
 
     // Validate and format the response
-    const optimizedPost = result.optimizedPost || result.post || text.substring(0, 280);
+    let optimizedPost = data.optimizedPost || data.post || text.substring(0, 280);
+    
+    // STRICT enforcement: truncate if over 280 characters
+    if (optimizedPost.length > 280) {
+      optimizedPost = optimizedPost.substring(0, 277) + '...';
+    }
+    
     const characterCount = optimizedPost.length;
-    const hashtags = result.hashtags || [];
-    const hashtagsString = result.hashtagsString || hashtags.map(tag => `#${tag.replace('#', '')}`).join(' ');
+    const hashtags = data.hashtags || [];
+    const hashtagsString = data.hashtagsString || hashtags.map(tag => `#${tag.replace('#', '')}`).join(' ');
 
     // Calculate how much space is left for hashtags
     const remainingSpace = 280 - characterCount;
@@ -106,30 +111,29 @@ IMPORTANT: The optimizedPost should NOT include hashtags. Keep hashtags separate
         canFitHashtags,
         fullPostWithHashtags: canFitHashtags 
           ? `${optimizedPost}\n\n${hashtagsString}` 
-          : optimizedPost,
-        tokensUsed: completion.usage?.total_tokens || 0
+          : optimizedPost
       }
     });
 
   } catch (error) {
     console.error('Error processing request:', error);
 
-    // Handle specific OpenAI errors
-    if (error.status === 401) {
+    // Handle specific Gemini API errors
+    if (error.status === 401 || error.message?.includes('API key')) {
       return res.status(401).json({ 
-        error: 'Invalid OpenAI API key.' 
+        error: 'Invalid Gemini API key.' 
       });
     }
 
-    if (error.status === 429) {
+    if (error.status === 429 || error.message?.includes('quota')) {
       return res.status(429).json({ 
-        error: 'OpenAI API rate limit exceeded. Please try again later.' 
+        error: 'Gemini API rate limit exceeded. Please try again later.' 
       });
     }
 
     if (error.status === 503) {
       return res.status(503).json({ 
-        error: 'OpenAI service temporarily unavailable. Please try again.' 
+        error: 'Gemini service temporarily unavailable. Please try again.' 
       });
     }
 

@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "cd client && npm install && npm run build",
+  "outputDirectory": "client/dist",
   "builds": [
     {
       "src": "api/shorten.js",
@@ -10,6 +12,10 @@
     {
       "src": "/api/shorten",
       "dest": "api/shorten.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/$1"
     }
   ],
   "env": {
