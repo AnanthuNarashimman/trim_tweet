@@ -1,12 +1,16 @@
 {
-  "name": "api",
+  "name": "x-shortener-api",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["x", "twitter", "post-optimizer", "openai"],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "Serverless API for optimizing posts for X (Twitter) free tier",
+  "dependencies": {
+    "openai": "^4.24.0"
+  }
 }
