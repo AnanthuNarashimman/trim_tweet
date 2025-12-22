@@ -160,25 +160,25 @@ function Page() {
               </button>
             </div>
             <div className="contact-links">
-              <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="contact-link">
+              <a href="https://github.com/AnanthuNarashimman" target="_blank" rel="noopener noreferrer" className="contact-link">
                 <Github className="w-5" />
                 <div className="contact-link-text">
                   <span className="contact-link-title">GitHub</span>
-                  <span className="contact-link-handle">@yourusername</span>
+                  <span className="contact-link-handle">@AnanthuNarashimman</span>
                 </div>
               </a>
-              <a href="https://x.com/yourusername" target="_blank" rel="noopener noreferrer" className="contact-link">
+              <a href="https://x.com/AnanthuN7652" target="_blank" rel="noopener noreferrer" className="contact-link">
                 <XLogo className="w-5" />
                 <div className="contact-link-text">
                   <span className="contact-link-title">X (Twitter)</span>
-                  <span className="contact-link-handle">@yourusername</span>
+                  <span className="contact-link-handle">@AnanthuN7652</span>
                 </div>
               </a>
-              <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer" className="contact-link">
+              <a href="https://linkedin.com/in/ananthunarashimman" target="_blank" rel="noopener noreferrer" className="contact-link">
                 <LinkedInLogo className="w-5" />
                 <div className="contact-link-text">
                   <span className="contact-link-title">LinkedIn</span>
-                  <span className="contact-link-handle">/in/yourusername</span>
+                  <span className="contact-link-handle">/in/ananthunarashimman</span>
                 </div>
               </a>
             </div>
