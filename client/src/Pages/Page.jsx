@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Copy, Check, Sparkles, MessageSquare, Hash, FileText, X as XIcon, Zap } from 'lucide-react';
+import { Copy, Check, Sparkles, MessageSquare, Hash, FileText, X as XIcon, Zap, Github } from 'lucide-react';
 import "../PageStyles/Page.css";
 
 import logo from "../assets/logo.png";
@@ -35,6 +35,7 @@ function Page() {
   const [resultData, setResultData] = useState(null);
   const [includeHashtags, setIncludeHashtags] = useState(true);
   const [comingSoonMessage, setComingSoonMessage] = useState('');
+  const [showContactCard, setShowContactCard] = useState(false);
 
   // Constants
   const MAX_CHARS = 280;
@@ -142,10 +143,48 @@ function Page() {
       </div>
 
       {/* Fixed Contact Button - Top Right */}
-      <button className="fixed-contact">
-        <span className="relative z-10">Contact Support</span>
+      <button className="fixed-contact" onClick={() => setShowContactCard(!showContactCard)}>
+        <span className="relative z-10">Contact</span>
         <div className="btn-shimmer"></div>
       </button>
+
+      {/* Contact Card */}
+      {showContactCard && (
+        <>
+          <div className="contact-overlay" onClick={() => setShowContactCard(false)}></div>
+          <div className="contact-card">
+            <div className="contact-card-header">
+              <h3>Let's Connect</h3>
+              <button className="contact-close" onClick={() => setShowContactCard(false)}>
+                <XIcon className="w-4" />
+              </button>
+            </div>
+            <div className="contact-links">
+              <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="contact-link">
+                <Github className="w-5" />
+                <div className="contact-link-text">
+                  <span className="contact-link-title">GitHub</span>
+                  <span className="contact-link-handle">@yourusername</span>
+                </div>
+              </a>
+              <a href="https://x.com/yourusername" target="_blank" rel="noopener noreferrer" className="contact-link">
+                <XLogo className="w-5" />
+                <div className="contact-link-text">
+                  <span className="contact-link-title">X (Twitter)</span>
+                  <span className="contact-link-handle">@yourusername</span>
+                </div>
+              </a>
+              <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer" className="contact-link">
+                <LinkedInLogo className="w-5" />
+                <div className="contact-link-text">
+                  <span className="contact-link-title">LinkedIn</span>
+                  <span className="contact-link-handle">/in/yourusername</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Hero Section */}
       <main className="hero">
@@ -296,8 +335,8 @@ function Page() {
           >
             {loading ? (
               <>
-                <Sparkles className="w-5 spin" />
-                <span>Optimizing...</span>
+                <Sparkles className="w-5 pulse" />
+                <span>Optimizing<span className="loading-dots"></span></span>
               </>
             ) : (
               <>
