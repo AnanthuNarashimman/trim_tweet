@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { text } = req.body;
+    const { text, includeHashtags = true } = req.body;
 
     // Validate input
     if (!text || typeof text !== 'string') {
@@ -46,25 +46,28 @@ export default async function handler(req, res) {
       });
     }
 
-    // Call Gemini to optimize the post for X's free tier (roughly 30 words for ultra-concise posts)
+    // Determine word limit based on whether hashtags will be included
+    const wordLimit = includeHashtags ? 30 : 40;
+
+    // Call Gemini to optimize the post for X's free tier
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
     
     const prompt = `You are an expert social media content optimizer specializing in X (formerly Twitter). Your task is to:
-1. Optimize posts to fit within approximately 30 words for maximum impact
+1. Optimize posts to fit within approximately ${wordLimit} words for maximum impact
 2. Maintain the core message and tone
 3. Make it engaging and impactful
 4. Suggest 3-5 relevant hashtags that would increase reach
 
 Return your response in the following JSON format:
 {
-  "optimizedPost": "The shortened post text (aim for around 30 words)",
+  "optimizedPost": "The shortened post text (aim for around ${wordLimit} words)",
   "wordCount": number,
   "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
   "hashtagsString": "#hashtag1 #hashtag2 #hashtag3"
 }
 
 IMPORTANT RULES:
-- Aim for approximately 30 words in the optimizedPost
+- Aim for approximately ${wordLimit} words in the optimizedPost
 - Do NOT include hashtags in optimizedPost - keep them separate
 - Focus on word count rather than character count
 - Keep it concise and impactful
@@ -103,11 +106,13 @@ ${text}`;
         optimizedPost,
         characterCount,
         wordCount,
+        wordLimit,
+        includeHashtags,
         remainingCharacters: 280 - characterCount,
         hashtags,
         hashtagsString,
         canFitHashtags,
-        fullPostWithHashtags: canFitHashtags 
+        fullPostWithHashtags: includeHashtags && canFitHashtags 
           ? `${optimizedPost}\n\n${hashtagsString}` 
           : optimizedPost
       }
