@@ -46,28 +46,28 @@ export default async function handler(req, res) {
       });
     }
 
-    // Call Gemini to optimize the post for X's free tier (280 characters)
+    // Call Gemini to optimize the post for X's free tier (roughly 30 words for ultra-concise posts)
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
     
     const prompt = `You are an expert social media content optimizer specializing in X (formerly Twitter). Your task is to:
-1. Optimize posts to fit STRICTLY within X's free tier limit of 280 characters - NO EXCEPTIONS
+1. Optimize posts to fit within approximately 30 words for maximum impact
 2. Maintain the core message and tone
 3. Make it engaging and impactful
 4. Suggest 3-5 relevant hashtags that would increase reach
 
 Return your response in the following JSON format:
 {
-  "optimizedPost": "The shortened post text (MUST be under 280 characters)",
-  "characterCount": number,
+  "optimizedPost": "The shortened post text (aim for around 30 words)",
+  "wordCount": number,
   "hashtags": ["hashtag1", "hashtag2", "hashtag3"],
   "hashtagsString": "#hashtag1 #hashtag2 #hashtag3"
 }
 
-CRITICAL RULES:
-- The optimizedPost MUST be under 280 characters - this is non-negotiable
+IMPORTANT RULES:
+- Aim for approximately 30 words in the optimizedPost
 - Do NOT include hashtags in optimizedPost - keep them separate
-- Count characters carefully and ensure you stay well under 280
-- If the post is close to the limit, make it shorter to be safe
+- Focus on word count rather than character count
+- Keep it concise and impactful
 
 Optimize this post for X (Twitter) free tier:
 
@@ -82,15 +82,11 @@ ${text}`;
     const jsonText = jsonMatch ? jsonMatch[1] : responseText;
     const data = JSON.parse(jsonText.trim());
 
-    // Validate and format the response
-    let optimizedPost = data.optimizedPost || data.post || text.substring(0, 280);
-    
-    // STRICT enforcement: truncate if over 280 characters
-    if (optimizedPost.length > 280) {
-      optimizedPost = optimizedPost.substring(0, 277) + '...';
-    }
+    // Validate and format the response - use LLM output as-is
+    const optimizedPost = data.optimizedPost || data.post || text;
     
     const characterCount = optimizedPost.length;
+    const wordCount = data.wordCount || optimizedPost.split(/\s+/).filter(word => word.length > 0).length;
     const hashtags = data.hashtags || [];
     const hashtagsString = data.hashtagsString || hashtags.map(tag => `#${tag.replace('#', '')}`).join(' ');
 
@@ -103,8 +99,10 @@ ${text}`;
       data: {
         original: text,
         originalLength: text.length,
+        originalWordCount: text.split(/\s+/).filter(word => word.length > 0).length,
         optimizedPost,
         characterCount,
+        wordCount,
         remainingCharacters: 280 - characterCount,
         hashtags,
         hashtagsString,
