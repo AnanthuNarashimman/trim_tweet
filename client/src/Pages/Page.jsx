@@ -39,7 +39,7 @@ function Page() {
 
   // Constants
   const MAX_CHARS = 280;
-  const API_URL = import.meta.env.VITE_API_URL || 'https://trim-tweet.vercel.app/shorten';
+  const API_URL = 'https://trim-tweet.vercel.app/shorten';
 
   const handleComingSoon = (platform) => {
     setComingSoonMessage(`${platform} support coming soon!`);
