@@ -29,7 +29,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { text, includeHashtags = true } = req.body;
+    const { text, includeHashtags = true, tone = 'informal' } = req.body;
 
     // Validate input
     if (!text || typeof text !== 'string') {
@@ -53,15 +53,25 @@ export default async function handler(req, res) {
 
     // Determine word limit based on whether hashtags will be included
     const wordLimit = includeHashtags ? 30 : 40;
+    const normalizedTone = typeof tone === 'string' && tone.toLowerCase() === 'formal'
+      ? 'formal'
+      : 'informal';
+    const toneInstruction = normalizedTone === 'formal'
+      ? 'Use a professional, polished, and formal tone. Avoid slang and keep the language business-friendly.'
+      : 'Use a conversational, friendly, and informal tone. Keep it natural, approachable, and engaging.';
 
     // Call Gemini to optimize the post for X's free tier
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
     
     const prompt = `You are an expert social media content optimizer specializing in X (formerly Twitter). Your task is to:
 1. Optimize posts to fit within approximately ${wordLimit} words for maximum impact
-2. Maintain the core message and tone
+  2. Maintain the core message while adapting to the selected tone
 3. Make it engaging and impactful
 4. Suggest 3-5 relevant hashtags that would increase reach
+  5. Apply this tone style: ${normalizedTone}
+
+  Tone guidance:
+  ${toneInstruction}
 
 Return your response in the following JSON format:
 {
@@ -112,6 +122,7 @@ ${text}`;
         characterCount,
         wordCount,
         wordLimit,
+        tone: normalizedTone,
         includeHashtags,
         remainingCharacters: 280 - characterCount,
         hashtags,

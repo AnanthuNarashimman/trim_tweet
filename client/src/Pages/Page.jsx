@@ -34,6 +34,7 @@ function Page() {
   const [showResult, setShowResult] = useState(false);
   const [resultData, setResultData] = useState(null);
   const [includeHashtags, setIncludeHashtags] = useState(true);
+  const [tone, setTone] = useState('informal');
   const [comingSoonMessage, setComingSoonMessage] = useState('');
   const [showContactCard, setShowContactCard] = useState(false);
 
@@ -63,7 +64,7 @@ function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: inputText, includeHashtags }),
+        body: JSON.stringify({ text: inputText, includeHashtags, tone }),
       });
 
       if (!response.ok) {
@@ -263,6 +264,23 @@ function Page() {
                     Include hashtags <span className="word-limit">({includeHashtags ? '30' : '40'} words)</span>
                   </span>
                 </label>
+
+                <div className="tone-control">
+                  <label htmlFor="tone-select" className="tone-label">
+                    <MessageSquare className="w-4" />
+                    Tone
+                  </label>
+                  <select
+                    id="tone-select"
+                    className="tone-select"
+                    value={tone}
+                    onChange={(e) => setTone(e.target.value)}
+                    disabled={showResult}
+                  >
+                    <option value="informal">Informal</option>
+                    <option value="formal">Formal</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
